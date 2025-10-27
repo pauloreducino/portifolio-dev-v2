@@ -1,43 +1,43 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { useInView } from "@/hooks/use-in-view"
-import { ExternalLink, Github } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
-import { DotPattern } from "@/components/ui/background-patterns"
+import { motion } from "framer-motion";
+import { useInView } from "@/hooks/use-in-view";
+import { ExternalLink, Github } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import { DotPattern } from "@/components/ui/background-patterns";
 
 const projects = [
   {
-    title: "EPSSO - Plataforma de Gestão",
+    title: "EPSSO - Segurança do trabalho",
     description:
-      "Plataforma completa para gestão de processos seletivos com dashboard administrativo, sistema de autenticação e integração com banco de dados.",
-    image: "/modern-dashboard.png",
-    tags: ["Next.js", "TypeScript", "Tailwind CSS", "Supabase"],
+      "A EPSSO é referência em Saúde e Segurança do Trabalho. Oferecemos treinamentos, medicina ocupacional, ergonomia, gestão de terceiros, dados e assessoria jurídica — tudo com excelência e conformidade legal.",
+    image: "/epssoimg.png",
+    tags: ["React.js", "TypeScript", "Tailwind CSS", "Vite"],
     results: [
-      "Redução de 40% no tempo de processamento de inscrições",
+      "Implementação de cache inteligente reduzindo requisições em 35%",
       "Interface responsiva com score Lighthouse > 95",
       "Sistema de autenticação seguro com Supabase Auth",
     ],
     links: {
-      live: "https://epsso.vercel.app",
+      live: "https://epsso.com.br/",
       github: "#",
     },
   },
   {
-    title: "NEXTPM - Sistema de Gerenciamento",
+    title: "NEXTPM - Certificação PMP",
     description:
-      "Sistema de gerenciamento de projetos com funcionalidades de tracking, relatórios e colaboração em tempo real.",
-    image: "/project-management-dashboard.png",
-    tags: ["React.js", "Next.js", "TanStack Query", "Tailwind CSS"],
+      "Curso de gestão de projetos com foco em certificação PMI. Matrículas abertas para a próxima turma!",
+    image: "/nextpm.png",
+    tags: ["Next.js", "Tailwind CSS", "Hostgator"],
     results: [
       "Implementação de cache inteligente reduzindo requisições em 35%",
       "Dashboard interativo com visualizações em tempo real",
       "Otimização de performance com lazy loading e code splitting",
     ],
     links: {
-      live: "https://nextpm.vercel.app",
+      live: "https://nextpm.com.br/",
       github: "#",
     },
   },
@@ -57,13 +57,17 @@ const projects = [
       github: "#",
     },
   },
-]
+];
 
 export function Projects() {
-  const [ref, isInView] = useInView({ threshold: 0.1 })
+  const [ref, isInView] = useInView({ threshold: 0.1 });
 
   return (
-    <section id="projetos" className="py-20 lg:py-32 bg-muted/30 relative" ref={ref}>
+    <section
+      id="projetos"
+      className="py-20 lg:py-32 bg-muted/30 relative"
+      ref={ref}
+    >
       <DotPattern />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -73,7 +77,9 @@ export function Projects() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">Projetos em Destaque</h2>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+            Projetos em Destaque
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Soluções digitais que entregam resultados mensuráveis
           </p>
@@ -99,13 +105,18 @@ export function Projects() {
 
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-2">{project.title}</h3>
-                <p className="text-muted-foreground mb-4 leading-relaxed">{project.description}</p>
+                <p className="text-muted-foreground mb-4 leading-relaxed">
+                  {project.description}
+                </p>
 
                 <div className="mb-4">
                   <h4 className="text-sm font-semibold mb-2">Resultados:</h4>
                   <ul className="space-y-1">
                     {project.results.map((result, i) => (
-                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <li
+                        key={i}
+                        className="text-sm text-muted-foreground flex items-start gap-2"
+                      >
                         <span className="text-success mt-1">✓</span>
                         {result}
                       </li>
@@ -123,13 +134,21 @@ export function Projects() {
 
                 <div className="flex gap-3">
                   <Button size="sm" asChild>
-                    <a href={project.links.live} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={project.links.live}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <ExternalLink size={16} className="mr-2" />
                       Ver Projeto
                     </a>
                   </Button>
                   <Button size="sm" variant="outline" asChild>
-                    <a href={project.links.github} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={project.links.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Github size={16} className="mr-2" />
                       Código
                     </a>
@@ -141,5 +160,5 @@ export function Projects() {
         </div>
       </div>
     </section>
-  )
+  );
 }
