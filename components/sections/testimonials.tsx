@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useInView } from "@/hooks/use-in-view"
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { GradientBlur } from "@/components/ui/background-patterns"
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useInView } from "@/hooks/use-in-view";
+import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GradientBlur } from "@/components/ui/background-patterns";
 
 const testimonials = [
   {
@@ -32,35 +32,39 @@ const testimonials = [
       "A colaboração com Paulo foi perfeita. Ele transformou nossos designs em código pixel-perfect, sempre respeitando as diretrizes de acessibilidade e performance. Recomendo fortemente!",
     avatar: "/professional-woman-avatar-2.png",
   },
-]
+];
 
 export function Testimonials() {
-  const [ref, isInView] = useInView({ threshold: 0.1 })
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [ref, isInView] = useInView({ threshold: 0.1 });
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   useEffect(() => {
-    if (!isAutoPlaying) return
-
+    if (!isAutoPlaying) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length)
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [isAutoPlaying])
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
 
   const handlePrevious = () => {
-    setIsAutoPlaying(false)
-    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
-  }
+    setIsAutoPlaying(false);
+    setCurrentIndex(
+      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+    );
+  };
 
   const handleNext = () => {
-    setIsAutoPlaying(false)
-    setCurrentIndex((prev) => (prev + 1) % testimonials.length)
-  }
+    setIsAutoPlaying(false);
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+  };
 
   return (
-    <section id="depoimentos" className="py-20 lg:py-32 bg-muted/20 relative" ref={ref}>
+    <section
+      id="depoimentos"
+      className="py-20 lg:py-32 bg-muted/20 relative"
+      ref={ref}
+    >
       <GradientBlur />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -70,7 +74,9 @@ export function Testimonials() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">Depoimentos</h2>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+            Depoimentos
+          </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             O que clientes e colegas dizem sobre o trabalho
           </p>
@@ -96,15 +102,20 @@ export function Testimonials() {
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-muted overflow-hidden">
                     <img
-                      src={testimonials[currentIndex].avatar || "/placeholder.svg"}
+                      src={
+                        testimonials[currentIndex].avatar || "/placeholder.svg"
+                      }
                       alt={testimonials[currentIndex].name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div>
-                    <p className="font-semibold">{testimonials[currentIndex].name}</p>
+                    <p className="font-semibold">
+                      {testimonials[currentIndex].name}
+                    </p>
                     <p className="text-sm text-muted-foreground">
-                      {testimonials[currentIndex].role} • {testimonials[currentIndex].company}
+                      {testimonials[currentIndex].role} •{" "}
+                      {testimonials[currentIndex].company}
                     </p>
                   </div>
                 </div>
@@ -112,27 +123,56 @@ export function Testimonials() {
             </AnimatePresence>
 
             <div className="flex items-center justify-center gap-4 mt-8">
-              <Button variant="outline" size="icon" onClick={handlePrevious} aria-label="Depoimento anterior">
+              {/* Botões de navegação com área clicável ≥48px */}
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12"
+                onClick={handlePrevious}
+                aria-label="Depoimento anterior"
+              >
                 <ChevronLeft size={20} />
               </Button>
 
-              <div className="flex gap-2">
-                {testimonials.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setIsAutoPlaying(false)
-                      setCurrentIndex(index)
-                    }}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      index === currentIndex ? "bg-primary w-8" : "bg-muted"
-                    }`}
-                    aria-label={`Ir para depoimento ${index + 1}`}
-                  />
-                ))}
+              {/* Dots acessíveis: área de toque grande sem alterar o visual do dot */}
+              <div
+                className="flex gap-2"
+                role="tablist"
+                aria-label="Navegação de depoimentos"
+              >
+                {testimonials.map((_, index) => {
+                  const selected = index === currentIndex;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setIsAutoPlaying(false);
+                        setCurrentIndex(index);
+                      }}
+                      className="relative h-12 w-12 rounded-full grid place-items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                      aria-label={`Ir para depoimento ${index + 1}`}
+                      aria-current={selected ? "true" : "false"}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`block rounded-full transition-all ${
+                          selected
+                            ? "w-8 h-2 bg-primary rounded-full"
+                            : "w-2 h-2 bg-muted"
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
               </div>
 
-              <Button variant="outline" size="icon" onClick={handleNext} aria-label="Próximo depoimento">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12"
+                onClick={handleNext}
+                aria-label="Próximo depoimento"
+              >
                 <ChevronRight size={20} />
               </Button>
             </div>
@@ -140,5 +180,5 @@ export function Testimonials() {
         </div>
       </div>
     </section>
-  )
+  );
 }
