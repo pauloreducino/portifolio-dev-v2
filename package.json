@@ -52,8 +52,10 @@
     "react-day-picker": "^9.11.1",
     "react-dom": "^19.0.0",
     "recharts": "^3.3.0",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^2.5.5",
-    "tw-animate-css": "latest"
+    "tw-animate-css": "latest",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.16",
