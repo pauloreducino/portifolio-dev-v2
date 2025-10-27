@@ -84,14 +84,17 @@ export function Testimonials() {
 
         <div className="max-w-4xl mx-auto">
           <div className="relative">
+            {/* Painel do depoimento atual */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}
+                id="testimonial-panel"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
                 className="p-8 lg:p-12 rounded-lg bg-card border border-border"
+                aria-live="polite"
               >
                 <Quote className="text-primary mb-6" size={48} />
 
@@ -122,49 +125,51 @@ export function Testimonials() {
               </motion.div>
             </AnimatePresence>
 
+            {/* Controles */}
             <div className="flex items-center justify-center gap-4 mt-8">
-              {/* Botões de navegação com área clicável ≥48px */}
+              {/* Navegação anterior/próximo com área ≥48px */}
               <Button
                 variant="outline"
                 size="icon"
                 className="h-12 w-12"
                 onClick={handlePrevious}
                 aria-label="Depoimento anterior"
+                aria-controls="testimonial-panel"
               >
                 <ChevronLeft size={20} />
               </Button>
 
-              {/* Dots acessíveis: área de toque grande sem alterar o visual do dot */}
-              <div
-                className="flex gap-2"
-                role="tablist"
-                aria-label="Navegação de depoimentos"
-              >
-                {testimonials.map((_, index) => {
-                  const selected = index === currentIndex;
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setIsAutoPlaying(false);
-                        setCurrentIndex(index);
-                      }}
-                      className="relative h-12 w-12 rounded-full grid place-items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                      aria-label={`Ir para depoimento ${index + 1}`}
-                      aria-current={selected ? "true" : "false"}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className={`block rounded-full transition-all ${
-                          selected
-                            ? "w-8 h-2 bg-primary rounded-full"
-                            : "w-2 h-2 bg-muted"
-                        }`}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
+              {/* Dots acessíveis: nav + ul role="list" (sem tablist) */}
+              <nav aria-label="Navegação de depoimentos">
+                <ul role="list" className="flex gap-2">
+                  {testimonials.map((_, index) => {
+                    const selected = index === currentIndex;
+                    return (
+                      <li key={index}>
+                        <button
+                          onClick={() => {
+                            setIsAutoPlaying(false);
+                            setCurrentIndex(index);
+                          }}
+                          className="relative h-12 w-12 rounded-full grid place-items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                          aria-label={`Ir para depoimento ${index + 1}`}
+                          aria-controls="testimonial-panel"
+                          aria-current={selected ? "true" : undefined}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={`block rounded-full transition-all ${
+                              selected
+                                ? "w-8 h-2 bg-primary rounded-full"
+                                : "w-2 h-2 bg-muted"
+                            }`}
+                          />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
 
               <Button
                 variant="outline"
@@ -172,6 +177,7 @@ export function Testimonials() {
                 className="h-12 w-12"
                 onClick={handleNext}
                 aria-label="Próximo depoimento"
+                aria-controls="testimonial-panel"
               >
                 <ChevronRight size={20} />
               </Button>
