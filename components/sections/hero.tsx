@@ -16,12 +16,21 @@ export function Hero() {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
+          {/* Badge com dot verdinho */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Badge variant="secondary" className="mb-6">
+            <Badge
+              variant="secondary"
+              className="mb-6 inline-flex items-center gap-2"
+              aria-label="Status: disponível para novos projetos"
+            >
+              <span className="relative inline-flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 motion-safe:animate-ping" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              </span>
               Disponível para novos projetos
             </Badge>
           </motion.div>
@@ -37,13 +46,13 @@ export function Hero() {
             <span className="text-gradient">Especialista em Performance</span>
           </motion.h1>
 
+          {/* Avatar com leve “glitch” e anel pulsando */}
           <motion.div
             className="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto mb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.15 }}
           >
-            {/* Glitch effect layers */}
             <motion.div
               className="absolute inset-0 rounded-full overflow-hidden"
               initial={{
@@ -83,14 +92,10 @@ export function Hero() {
               />
             </motion.div>
 
-            {/* Border ring with pulse effect */}
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-primary/30"
               initial={{ scale: 1, opacity: 0 }}
-              animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0, 0.5, 0],
-              }}
+              animate={{ scale: [1, 1.1, 1], opacity: [0, 0.5, 0] }}
               transition={{
                 duration: 1.5,
                 repeat: Number.POSITIVE_INFINITY,
@@ -120,8 +125,9 @@ export function Hero() {
               <a href="#contato">
                 Fale Comigo
                 <ArrowRight
-                  className="ml-2 group-hover:translate-x-1 transition-transform"
+                  className="ml-2 transition-transform group-hover:translate-x-1"
                   size={20}
+                  aria-hidden="true"
                 />
               </a>
             </Button>
@@ -136,7 +142,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            {skills.map((skill, index) => (
+            {skills.map((skill) => (
               <Badge key={skill} variant="outline" className="text-sm">
                 {skill}
               </Badge>
@@ -145,20 +151,22 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator (opcional) */}
       <motion.div
         className="absolute bottom-0 left-1/2 -translate-x-1/2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.5 }}
       >
-        {/* <div className="w-6 h-10 border-2 border-muted-foreground rounded-full flex items-start justify-center p-2">
+        {/* 
+        <div className="w-6 h-10 border-2 border-muted-foreground rounded-full flex items-start justify-center p-2">
           <motion.div
             className="w-1.5 h-1.5 bg-muted-foreground rounded-full"
             animate={{ y: [0, 12, 0] }}
             transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
           />
-        </div> */}
+        </div> 
+        */}
       </motion.div>
     </section>
   );
