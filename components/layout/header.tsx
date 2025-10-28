@@ -21,7 +21,7 @@ export function Header() {
   const [activeSection, setActiveSection] = useState("");
   const { theme, toggleTheme } = useTheme();
 
-  // 🧩 Mantém tudo igual, só adiciona lock do scroll quando o menu mobile abre
+  // 🔒 Impede scroll da página quando o menu mobile está aberto
   useEffect(() => {
     if (isMobileMenuOpen) {
       const prev = document.body.style.overflow;
@@ -32,11 +32,11 @@ export function Header() {
     }
   }, [isMobileMenuOpen]);
 
+  // 🧭 Scroll Spy + efeito sticky
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
 
-      // Scroll spy
       const sections = navItems.map((item) => item.href.slice(1));
       const current = sections.find((section) => {
         const element = document.getElementById(section);
@@ -60,7 +60,7 @@ export function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-background/80 backdrop-blur-lg border-b border-border"
+          ? "bg-background/100 border-b border-border"
           : "bg-transparent"
       }`}
     >
@@ -90,6 +90,7 @@ export function Header() {
             ))}
           </ul>
 
+          {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-3">
             <button
               onClick={toggleTheme}
@@ -117,6 +118,7 @@ export function Header() {
             </Button>
           </div>
 
+          {/* Mobile Actions */}
           <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={toggleTheme}
@@ -140,7 +142,7 @@ export function Header() {
           </div>
         </div>
 
-        {/* MOBILE MENU — apenas responsivo, sem afetar desktop */}
+        {/* 🧱 MOBILE MENU — fundo sólido */}
         {isMobileMenuOpen && (
           <div
             id="mobile-nav"
@@ -149,7 +151,7 @@ export function Header() {
             className="
               lg:hidden
               fixed inset-x-0 top-16 bottom-0
-              bg-background/95 backdrop-blur-md
+              bg-white dark:bg-[#0b0b0b]   /* ← fundo sólido para claro/escuro */
               border-t border-border
               animate-in fade-in-0 slide-in-from-top-2 duration-200
               z-[60]
@@ -177,11 +179,7 @@ export function Header() {
                   </li>
                 ))}
                 <li className="pt-2">
-                  <Button
-                    variant="outline"
-                    asChild
-                    className="w-full bg-transparent"
-                  >
+                  <Button variant="outline" asChild className="w-full">
                     <a
                       href="/Curriculo_Paulo_Reducino_Dev_Frontend.pdf"
                       download

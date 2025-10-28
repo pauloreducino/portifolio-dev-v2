@@ -1,18 +1,173 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const skills = ["React.js", "Next.js", "TypeScript", "Tailwind CSS", "SEO"];
 
 export function Hero() {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springConfig = { damping: 25, stiffness: 150 };
+  const smoothMouseX = useSpring(mouseX, springConfig);
+  const smoothMouseY = useSpring(mouseY, springConfig);
+
+  // Gera posições das partículas apenas no cliente
+  const [particles, setParticles] = useState<
+    Array<{ left: string; top: string; duration: number; delay: number }>
+  >([]);
+
+  useEffect(() => {
+    // Gera as posições apenas uma vez no cliente
+    setParticles(
+      Array.from({ length: 20 }, () => ({
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        duration: 3 + Math.random() * 4,
+        delay: Math.random() * 5,
+      }))
+    );
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+
+      // Normaliza para -1 a 1
+      const x = (clientX / innerWidth - 0.5) * 2;
+      const y = (clientY / innerHeight - 0.5) * 2;
+
+      mouseX.set(x * 20); // Multiplica para aumentar o efeito
+      mouseY.set(y * 20);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mouseX, mouseY]);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-      {/* Background gradient */}
+      {/* Animated Background Layers */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
+
+      {/* Animated Grid */}
+      <motion.div
+        className="absolute inset-0 opacity-40"
+        style={{
+          x: smoothMouseX,
+          y: smoothMouseY,
+        }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.2) 1px, transparent 1px),
+                             linear-gradient(to bottom, hsl(var(--primary) / 0.2) 1px, transparent 1px)`,
+            backgroundSize: "80px 80px",
+          }}
+        >
+          <motion.div
+            className="absolute inset-0"
+            animate={{
+              backgroundPosition: ["0px 0px", "80px 80px"],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            style={{
+              backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.15) 1px, transparent 1px),
+                               linear-gradient(to bottom, hsl(var(--primary) / 0.15) 1px, transparent 1px)`,
+              backgroundSize: "80px 80px",
+            }}
+          />
+        </div>
+      </motion.div>
+
+      {/* Floating Orbs */}
+      <motion.div
+        className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl"
+        style={{
+          x: smoothMouseX,
+          y: smoothMouseY,
+        }}
+        animate={{
+          x: [0, 100, 0],
+          y: [0, -50, 0],
+          scale: [1, 1.2, 1],
+        }}
+        transition={{
+          duration: 15,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl"
+        style={{
+          x: smoothMouseX,
+          y: smoothMouseY,
+        }}
+        animate={{
+          x: [0, -80, 0],
+          y: [0, 60, 0],
+          scale: [1, 1.3, 1],
+        }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="absolute top-1/2 right-1/3 w-64 h-64 bg-primary/10 rounded-full blur-3xl"
+        style={{
+          x: smoothMouseX,
+          y: smoothMouseY,
+        }}
+        animate={{
+          x: [0, 60, 0],
+          y: [0, -40, 0],
+          scale: [1, 1.15, 1],
+        }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+
+      {/* Floating Particles */}
+      {particles.map((particle, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1.5 h-1.5 bg-primary/50 rounded-full"
+          style={{
+            left: particle.left,
+            top: particle.top,
+          }}
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0, 1, 0],
+          }}
+          transition={{
+            duration: particle.duration,
+            repeat: Infinity,
+            delay: particle.delay,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-radial from-transparent via-background/30 to-background pointer-events-none" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
@@ -46,7 +201,7 @@ export function Hero() {
             <span className="text-gradient">Especialista em Performance</span>
           </motion.h1>
 
-          {/* Avatar com leve “glitch” e anel pulsando */}
+          {/* Avatar com leve "glitch" e anel pulsando */}
           <motion.div
             className="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto mb-8"
             initial={{ opacity: 0 }}
