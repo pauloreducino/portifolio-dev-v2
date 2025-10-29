@@ -19,7 +19,7 @@ const testimonials = [
   {
     name: "João Santos",
     role: "CEO",
-    company: "StartupXYZ",
+    company: "Startup",
     content:
       "Trabalhar com Paulo foi uma experiência incrível. Ele não apenas entregou um código limpo e bem estruturado, mas também trouxe insights valiosos sobre UX e performance que fizeram toda a diferença no nosso produto.",
     avatar: "/professional-man-avatar.png",
