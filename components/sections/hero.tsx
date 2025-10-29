@@ -13,9 +13,7 @@ import Image from "next/image";
 
 /** Lista de tags exibidas no fundo (pode adicionar à vontade) */
 const TECH_TAGS: string[] = [
-  "</>",
   "< />",
-  "</ >", // variações visuais
   "HTML",
   "CSS",
   "JS",
@@ -55,9 +53,7 @@ const TECH_TAGS: string[] = [
 
 /** Paleta de cores por label (fallback para text-primary/40 se não mapeado) */
 const COLOR_BY_TECH: Record<string, string> = {
-  "</>": "text-zinc-300",
   "< />": "text-zinc-300",
-  "</ >": "text-zinc-300",
   HTML: "text-orange-400",
   CSS: "text-sky-400",
   JS: "text-yellow-400",
