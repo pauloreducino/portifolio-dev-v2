@@ -475,7 +475,7 @@ export function Hero() {
               }}
             >
               <Image
-                src="/images/paulo-profile.webp"
+                src="/images/paulo-profile-v2.webp"
                 alt="Paulo Reducino"
                 width={224}
                 height={224}
