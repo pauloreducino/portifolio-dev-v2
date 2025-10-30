@@ -106,7 +106,7 @@ export function Footer() {
             © {currentYear} Paulo Reducino. Todos os direitos reservados.
           </p>
           <a
-            href="/Curriculo_Paulo_Reducino_Dev_Frontend.pdf"
+            href="/Curriculo_Dev_Forntend_Paulo_Reducino.pdf"
             className="text-sm text-muted-foreground hover:text-primary transition-colors"
             download
           >

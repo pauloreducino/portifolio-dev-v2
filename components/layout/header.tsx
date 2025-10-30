@@ -104,7 +104,7 @@ export function Header() {
 
             <Button variant="outline" size="sm" asChild>
               <a
-                href="/Curriculo_Paulo_Reducino_Dev_Frontend.pdf"
+                href="/Curriculo_Dev_Forntend_Paulo_Reducino.pdf"
                 download
                 aria-label="Baixar currículo em PDF"
               >
@@ -181,7 +181,7 @@ export function Header() {
                 <li className="pt-2">
                   <Button variant="outline" asChild className="w-full">
                     <a
-                      href="/Curriculo_Paulo_Reducino_Dev_Frontend.pdf"
+                      href="/Curriculo_Dev_Forntend_Paulo_Reducino.pdf"
                       download
                       onClick={() => setIsMobileMenuOpen(false)}
                       aria-label="Baixar currículo em PDF"
