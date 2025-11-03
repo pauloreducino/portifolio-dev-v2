@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
@@ -62,13 +63,35 @@ export const metadata: Metadata = {
     },
   },
   generator: "v0.app",
+
+  // --- FAVICONS / ICONES ---
+  icons: {
+    // favicon padrão
+    icon: [
+      { url: "/favicon.jpeg", sizes: "any" }, // fallback
+      { url: "/favicon.jpeg", type: "image/png", sizes: "32x32" },
+      { url: "/favicon.jpeg", type: "image/png", sizes: "16x16" },
+      // variações por tema
+      { url: "/favicon-light.png", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-dark.png", media: "(prefers-color-scheme: dark)" },
+    ],
+    // ícone grande (PWA / iOS)
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+    // Safari pinned tab (monocromático)
+    other: [
+      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#0ea5e9" },
+    ],
+    // atalho clássico
+    shortcut: ["/favicon.jpeg"],
+  },
+
+  // Manifest PWA (opcional, mas recomendado para devices)
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR" className="scroll-smooth">
       <body
