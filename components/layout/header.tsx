@@ -1,8 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Menu, X, Moon, Sun, Download } from "lucide-react";
+import {
+  Menu,
+  X,
+  Moon,
+  Sun,
+  Download,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/providers/theme-provider";
 
@@ -15,45 +25,206 @@ const navItems = [
   { href: "#contato", label: "Contato" },
 ];
 
+// --- Chip compacto da rádio (usa env NEXT_PUBLIC_RADIO_STREAM_URL) ---
+function RadioChip() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [volume, setVolume] = useState<number>(() => {
+    if (typeof window === "undefined") return 0.9;
+    const saved = localStorage.getItem("radio:volume");
+    return saved ? Number(saved) : 0.9;
+  });
+
+  const stream = process.env.NEXT_PUBLIC_RADIO_STREAM_URL || "";
+
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume;
+    try {
+      localStorage.setItem("radio:volume", String(volume));
+    } catch {}
+  }, [volume]);
+
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.muted = isMuted;
+  }, [isMuted]);
+
+  const togglePlay = async () => {
+    if (!audioRef.current) return;
+    try {
+      if (!isPlaying) {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } else {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      }
+    } catch {}
+  };
+
+  return (
+    <div className="relative">
+      {/* Botão principal (não altera o layout porque ficará absolute no header) */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="
+          inline-flex items-center gap-2 rounded-full
+          border border-border/60 bg-white/70 text-foreground
+          dark:bg-white/10 dark:border-white/10
+          backdrop-blur px-2.5 py-1.5 text-xs font-medium
+          shadow-sm ring-1 ring-inset ring-black/5 dark:ring-white/10
+          hover:bg-white/80 dark:hover:bg-white/15 transition
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
+        "
+        aria-expanded={open}
+        aria-controls="radio-popover"
+        aria-label={open ? "Fechar rádio" : "Abrir rádio"}
+      >
+        <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+        <span className="sm:hidden">Rádio</span>
+        <span className="hidden sm:block truncate max-w-[10rem]">
+          Atitude Gospel Rock
+        </span>
+      </button>
+
+      {/* Popover */}
+      <div
+        id="radio-popover"
+        className={`
+          absolute left-0 mt-2 w-[min(88vw,280px)]
+          overflow-hidden rounded-xl
+          border border-border/60 bg-white/80 text-foreground
+          dark:bg-white/5 dark:border-white/10
+          backdrop-blur ring-1 ring-inset ring-black/5 dark:ring-white/10 shadow-lg
+          transition-all duration-150
+          ${open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1 pointer-events-none"}
+        `}
+      >
+        <div className="p-3">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2.5 py-1.5 text-xs"
+              onClick={togglePlay}
+              aria-label={isPlaying ? "Pausar rádio" : "Tocar rádio"}
+            >
+              {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+              <span className="ml-1">{isPlaying ? "Pausar" : "Tocar"}</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2.5 py-1.5 text-xs"
+              onClick={() => setIsMuted((m) => !m)}
+              aria-label={isMuted ? "Ativar som" : "Mutar"}
+            >
+              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              <span className="ml-1 hidden sm:inline">
+                {isMuted ? "Desmutar" : "Mutar"}
+              </span>
+            </Button>
+          </div>
+
+          <div className="mt-3 hidden sm:flex items-center gap-3">
+            <span className="text-[11px] opacity-70 w-10">Volume</span>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={isMuted ? 0 : volume}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setVolume(v);
+                if (v > 0 && isMuted) setIsMuted(false);
+              }}
+              className="w-40 accent-current"
+              aria-label="Volume da rádio"
+            />
+          </div>
+
+          <audio
+            ref={audioRef}
+            preload="none"
+            crossOrigin="anonymous"
+            onError={() => setIsPlaying(false)}
+          >
+            {stream ? <source src={stream} /> : null}
+          </audio>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const { theme, toggleTheme } = useTheme();
 
-  // 🔒 Impede scroll da página quando o menu mobile está aberto
+  // refs para posicionar o chip sem alterar o fluxo
+  const rowRef = useRef<HTMLDivElement | null>(null);
+  const logoRef = useRef<HTMLAnchorElement | null>(null);
+  const [leftPx, setLeftPx] = useState<number>(0);
+
+  // bloqueia scroll ao abrir menu
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = prev;
-      };
-    }
+    if (!isMobileMenuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [isMobileMenuOpen]);
 
-  // 🧭 Scroll Spy + efeito sticky
+  // sticky + scrollspy
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
-
-      const sections = navItems.map((item) => item.href.slice(1));
-      const current = sections.find((section) => {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom >= 100;
-        }
-        return false;
+      const sections = navItems.map((i) => i.href.slice(1));
+      const current = sections.find((id) => {
+        const el = document.getElementById(id);
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        return r.top <= 100 && r.bottom >= 100;
       });
-
-      if (current) {
-        setActiveSection(`#${current}`);
-      }
+      if (current) setActiveSection("#" + current);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // posiciona o chip ENTRE a logo e o menu sem empurrar o layout
+  useEffect(() => {
+    const computeLeft = () => {
+      const row = rowRef.current;
+      const logo = logoRef.current;
+      if (!row || !logo) return setLeftPx(0);
+      const rowRect = row.getBoundingClientRect();
+      const logoRect = logo.getBoundingClientRect();
+      // left = fim da logo relativo ao container + um respiro
+      const left = logoRect.right - rowRect.left + 12; // 12px de gap
+      setLeftPx(Math.max(8, Math.round(left)));
+    };
+
+    computeLeft();
+
+    let ro: ResizeObserver | null = null;
+    if (typeof window !== "undefined" && "ResizeObserver" in window) {
+      ro = new ResizeObserver(computeLeft);
+      if (rowRef.current) ro.observe(rowRef.current);
+      if (logoRef.current) ro.observe(logoRef.current);
+    }
+    window.addEventListener("resize", computeLeft);
+
+    return () => {
+      window.removeEventListener("resize", computeLeft);
+      if (ro) ro.disconnect();
+    };
   }, []);
 
   return (
@@ -65,13 +236,29 @@ export function Header() {
       }`}
     >
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        {/* linha do header ORIGINAL: justify-between */}
+        <div
+          ref={rowRef}
+          className="relative flex items-center justify-between h-16 lg:h-20"
+        >
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold text-gradient">
+          <Link
+            ref={logoRef}
+            href="/"
+            className="text-xl font-bold text-gradient"
+          >
             &lt;PR /&gt;
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* === Rádio ABSOLUTA, não altera layout === */}
+          <div
+            className="absolute top-1/2 -translate-y-1/2"
+            style={{ left: `${leftPx}px` }}
+          >
+            <RadioChip />
+          </div>
+
+          {/* Menu desktop */}
           <ul className="hidden lg:flex items-center gap-8">
             {navItems.map((item) => (
               <li key={item.href}>
@@ -90,7 +277,7 @@ export function Header() {
             ))}
           </ul>
 
-          {/* Desktop Actions */}
+          {/* Ações desktop */}
           <div className="hidden lg:flex items-center gap-3">
             <button
               onClick={toggleTheme}
@@ -142,23 +329,20 @@ export function Header() {
           </div>
         </div>
 
-        {/* 🧱 MOBILE MENU — fundo sólido */}
+        {/* MOBILE MENU */}
         {isMobileMenuOpen && (
           <div
             id="mobile-nav"
             role="dialog"
             aria-modal="true"
             className="
-              lg:hidden
-              fixed inset-x-0 top-16 bottom-0
-              bg-white dark:bg-[#0b0b0b]   /* ← fundo sólido para claro/escuro */
+              lg:hidden fixed inset-x-0 top-16 bottom-0
+              bg-white dark:bg-[#0b0b0b]
               border-t border-border
               animate-in fade-in-0 slide-in-from-top-2 duration-200
               z-[60]
             "
-            onKeyDown={(e) => {
-              if (e.key === "Escape") setIsMobileMenuOpen(false);
-            }}
+            onKeyDown={(e) => e.key === "Escape" && setIsMobileMenuOpen(false)}
           >
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
               <ul className="flex flex-col gap-2">
