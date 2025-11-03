@@ -26,20 +26,27 @@ const navItems = [
   { href: "#contato", label: "Contato" },
 ];
 
-/* -------------------- Rádio -------------------- */
+/* =========================================================
+   Rádio: chip + popover (desktop) e modal (mobile)
+   - Usa env: NEXT_PUBLIC_RADIO_STREAM_URL
+   - Sem crossOrigin (evita CORS em produção)
+   - Uma ÚNICA tag <audio> fora do Panel (evita ref duplicada)
+========================================================= */
 function RadioChip() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false); // para portal
+  const [mounted, setMounted] = useState(false); // para portal no mobile
   const [volume, setVolume] = useState<number>(() => {
     if (typeof window === "undefined") return 0.9;
     const saved = localStorage.getItem("radio:volume");
     return saved ? Number(saved) : 0.9;
   });
 
-  const stream = process.env.NEXT_PUBLIC_RADIO_STREAM_URL || "";
+  const stream =
+    process.env.NEXT_PUBLIC_RADIO_STREAM_URL ||
+    "https://servidor20-5.brlogic.com:7710/live?source=website";
 
   useEffect(() => setMounted(true), []);
 
@@ -66,29 +73,34 @@ function RadioChip() {
   }, [open]);
 
   const togglePlay = async () => {
-    if (!audioRef.current || !stream) return;
+    const el = audioRef.current;
+    if (!el) return;
+
+    // injeta/atualiza src antes do play
+    if (!el.src || !el.src.includes(stream)) {
+      el.src = stream; // ⚠️ sem crossOrigin
+      el.load();
+    }
+
     try {
-      if (audioRef.current.src !== stream) {
-        audioRef.current.src = stream;
-        audioRef.current.load();
-      }
-      audioRef.current.muted = false;
       if (!isPlaying) {
-        await audioRef.current.play();
+        el.muted = false;
+        await el.play();
         setIsPlaying(true);
       } else {
-        audioRef.current.pause();
+        el.pause();
         setIsPlaying(false);
       }
     } catch (err) {
       console.error("play() error:", err);
       alert(
-        "Erro ao iniciar o áudio. Verifique a variável NEXT_PUBLIC_RADIO_STREAM_URL na Vercel (HTTPS) e faça redeploy."
+        "Não foi possível iniciar o áudio.\n" +
+          "Confirme a variável NEXT_PUBLIC_RADIO_STREAM_URL na Vercel (Production) e faça redeploy."
       );
     }
   };
 
-  /* ---- UI comum (conteúdo do painel) ---- */
+  // conteúdo do painel (usado no popover desktop e no modal mobile)
   const Panel = (
     <div
       className="
@@ -169,22 +181,12 @@ function RadioChip() {
           Streaming ao vivo • BRLogic
         </p>
       </div>
-
-      <audio
-        ref={audioRef}
-        preload="none"
-        crossOrigin="anonymous"
-        onError={() => setIsPlaying(false)}
-      >
-        {stream ? <source src={stream} type="audio/mpeg" /> : null}
-      </audio>
     </div>
   );
 
-  /* ---- Render ---- */
   return (
     <>
-      {/* botão do chip (sempre dentro do header) */}
+      {/* Botão do chip (sempre dentro do header) */}
       <button
         onClick={() => setOpen((o) => !o)}
         className="
@@ -207,24 +209,30 @@ function RadioChip() {
         </span>
       </button>
 
-      {/* Desktop: popover ancorado ao chip (sem mexer layout) */}
+      {/* Desktop: popover ancorado ao chip (não mexe layout) */}
       <div
         id="radio-panel"
         className={`
           hidden sm:block
           absolute left-0 mt-2 w-[min(88vw,280px)]
           transition-all duration-150
-          ${open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1 pointer-events-none"}
+          ${
+            open
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 -translate-y-1 pointer-events-none"
+          }
         `}
       >
         {Panel}
       </div>
 
-      {/* Mobile: modal central por portal (NUNCA corta) */}
+      {/* Mobile: modal central via portal (evita sair da tela) */}
       {mounted &&
         createPortal(
           <div
-            className={`sm:hidden fixed inset-0 z-[80] ${open ? "" : "pointer-events-none"}`}
+            className={`sm:hidden fixed inset-0 z-[80] ${
+              open ? "" : "pointer-events-none"
+            }`}
             aria-hidden={!open}
           >
             {/* backdrop */}
@@ -234,11 +242,11 @@ function RadioChip() {
               }`}
               onClick={() => setOpen(false)}
             />
-            {/* card central */}
+            {/* card central abaixo do header */}
             <div
               className={`
                 absolute left-0 right-0 mx-4
-                top-[72px]  /* abaixo do header */
+                top-[72px]
                 transition-transform transition-opacity duration-150
                 ${open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"}
               `}
@@ -249,11 +257,29 @@ function RadioChip() {
           </div>,
           document.body
         )}
+
+      {/* ÚNICA tag <audio> no componente (evita refs duplicadas) */}
+      <audio
+        ref={audioRef}
+        preload="none"
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onError={(e) => {
+          console.error("Audio error", e);
+          setIsPlaying(false);
+        }}
+      >
+        {/* múltiplos tipos ajudam compatibilidade */}
+        <source src={stream} type="audio/mpeg" />
+        <source src={stream} type="audio/aacp" />
+      </audio>
     </>
   );
 }
 
-/* -------------------- Header -------------------- */
+/* =========================================================
+   Header
+========================================================= */
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -265,6 +291,7 @@ export function Header() {
   const logoRef = useRef<HTMLAnchorElement | null>(null);
   const [leftPx, setLeftPx] = useState<number>(0);
 
+  // bloquear scroll quando menu mobile aberto
   useEffect(() => {
     if (!isMobileMenuOpen) return;
     const prev = document.body.style.overflow;
@@ -274,6 +301,7 @@ export function Header() {
     };
   }, [isMobileMenuOpen]);
 
+  // sticky + scroll spy
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -290,6 +318,7 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // calcula a posição do chip (entre logo e menu) sem empurrar layout
   useEffect(() => {
     const computeLeft = () => {
       const row = rowRef.current;
